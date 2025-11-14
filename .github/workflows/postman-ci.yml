@@ -112,12 +112,18 @@ jobs:
 
   # Job 3: Push to Postman - Runs only on main branch after successful tests
   push-to-postman:
-    name: Push to Postman Workspace
+    name: Push to Postman Workspace (Only on Merged PRs)
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true
     needs: [functional-tests]
     
     steps:
+      - name: Check if deployment should run
+        run: |
+          echo "ℹ️  This job only runs when a Pull Request is merged to main"
+          echo "Current event: ${{ github.event_name }}"
+          echo "PR merged: ${{ github.event.pull_request.merged }}"
+      
       - name: Checkout code
         uses: actions/checkout@v4
       
