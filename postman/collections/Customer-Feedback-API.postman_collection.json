@@ -4,5 +4,24 @@
     "name": "Customer-Feedback-API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
-  "item": []
+  "item": [
+    {
+      "name": "Get All Feedback",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/feedback",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "feedback"
+          ]
+        },
+        "description": "Retrieve all customer feedback entries"
+      },
+      "response": []
+    }
+  ]
 }

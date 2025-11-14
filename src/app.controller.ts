@@ -32,7 +32,10 @@ export class AppController {
         'GET /api/inventory/:id': 'Get a specific inventory item',
         'POST /api/inventory': 'Create a new inventory item',
         'PUT /api/inventory/:id': 'Update an existing inventory item',
-        'DELETE /api/inventory/:id': 'Delete an inventory item'
+        'DELETE /api/inventory/:id': 'Delete an inventory item',
+        'GET /api/feedback': 'List all customer feedback',
+        'GET /api/feedback/:id': 'Get a specific feedback item',
+        'POST /api/feedback': 'Submit new customer feedback'
       },
       documentation: {
         'GET /api-spec': 'OpenAPI 3.0 specification (JSON)'

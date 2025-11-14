@@ -57,5 +57,28 @@
       "price": 89.99
     }
   ],
-  "nextId": 40
+  "nextId": 40,
+  "feedback": [
+    {
+      "id": 1,
+      "date": "2025-11-10",
+      "title": "Excellent Service",
+      "email": "john.doe@example.com",
+      "description": "The customer support team was very helpful and responsive. Highly recommend!"
+    },
+    {
+      "id": 2,
+      "date": "2025-11-12",
+      "title": "Product Quality Issue",
+      "email": "jane.smith@example.com",
+      "description": "The laptop I received had a defective keyboard. Hoping for a quick replacement."
+    },
+    {
+      "id": 3,
+      "date": "2025-11-14",
+      "title": "Fast Delivery",
+      "email": "mike.johnson@example.com",
+      "description": "Ordered on Monday, received on Wednesday. Packaging was excellent!"
+    }
+  ]
 }
