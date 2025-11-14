@@ -1,0 +1,228 @@
+{
+  "run": {
+    "meta": {
+      "collectionId": "47f628aa-8fb5-40d9-98a8-b804338b0ce4",
+      "collectionName": "Customer-Feedback-API",
+      "started": 1763119660792,
+      "completed": 1763119660809,
+      "duration": 17
+    },
+    "summary": {
+      "iterations": {
+        "executed": 1,
+        "errors": 0
+      },
+      "executedRequests": {
+        "executed": 1,
+        "errors": 0
+      },
+      "prerequestScripts": {
+        "executed": 0,
+        "errors": 0
+      },
+      "postresponseScripts": {
+        "executed": 0,
+        "errors": 0
+      },
+      "tests": {
+        "executed": 0,
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "timeStats": {
+        "responseAverage": 7,
+        "responseMin": 7,
+        "responseMax": 7,
+        "responseStandardDeviation": 0
+      }
+    },
+    "executions": [
+      {
+        "iterationCount": 0,
+        "requestExecuted": {
+          "id": "1126d046-8118-46fe-bf7b-e19c6f25b172",
+          "name": "Get All Feedback",
+          "description": {
+            "content": "Retrieve all customer feedback entries",
+            "type": "text/plain"
+          },
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "feedback"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "headers": [
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.48.0",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "f2bda785-d41f-4e82-9e36-910afd760cff",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "0b692831-2f04-417a-94b2-182cf85a3056",
+          "_details": {
+            "name": "Not Found",
+            "detail": "The requested resource could not be found but may be available again in the future. Subsequent requests by the client are permissible.",
+            "code": 404,
+            "standardName": "Not Found"
+          },
+          "status": "Not Found",
+          "code": 404,
+          "headers": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "71"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"47-npvLdDsO2Iw7GnJ1erzuQahUiP0\""
+            },
+            {
+              "key": "Date",
+              "value": "Fri, 14 Nov 2025 11:27:40 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              109,
+              101,
+              115,
+              115,
+              97,
+              103,
+              101,
+              34,
+              58,
+              34,
+              67,
+              97,
+              110,
+              110,
+              111,
+              116,
+              32,
+              71,
+              69,
+              84,
+              32,
+              47,
+              102,
+              101,
+              101,
+              100,
+              98,
+              97,
+              99,
+              107,
+              34,
+              44,
+              34,
+              101,
+              114,
+              114,
+              111,
+              114,
+              34,
+              58,
+              34,
+              78,
+              111,
+              116,
+              32,
+              70,
+              111,
+              117,
+              110,
+              100,
+              34,
+              44,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              67,
+              111,
+              100,
+              101,
+              34,
+              58,
+              52,
+              48,
+              52,
+              125
+            ]
+          },
+          "cookies": [],
+          "responseTime": 7,
+          "responseSize": 71,
+          "downloadedBytes": 71
+        },
+        "tests": [],
+        "errors": []
+      }
+    ],
+    "runError": null
+  }
+}

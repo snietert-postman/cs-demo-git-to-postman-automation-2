@@ -63,14 +63,14 @@ jobs:
           # Run Inventory Management API tests
           echo "Running Inventory Management API tests..."
           postman collection run postman/collections/Inventory-Management-API-Updated.postman_collection.json \
-            --reporters cli,json \
-            --reporter-json-export inventory-results.json
+            -e postman/environments/Localhost.postman_environment.json \
+            -r cli,json
           
           # Run Customer Feedback API tests
           echo "Running Customer Feedback API tests..."
           postman collection run postman/collections/Customer-Feedback-API.postman_collection.json \
-            --reporters cli,json \
-            --reporter-json-export feedback-results.json
+            -e postman/environments/Localhost.postman_environment.json \
+            -r cli,json
       
       - name: Upload Test Results
         if: always()
