@@ -127,7 +127,7 @@ jobs:
           
           # Push all changes to Postman Workspace
           echo "Pushing all changes to Postman workspace..."
-          postman workspace push
+          postman workspace push --yes
           echo "✅ Successfully pushed all changes to Postman workspace!"
       
       - name: Notify Success
