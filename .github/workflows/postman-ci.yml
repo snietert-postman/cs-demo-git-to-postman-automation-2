@@ -101,15 +101,6 @@ jobs:
             -e postman/environments/Localhost.postman_environment.json \
             -r cli,json
       
-      - name: Upload Test Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-feature
-          path: |
-            inventory-results.json
-            feedback-results.json
-
   # Job 3: Push to Postman - Runs only on main branch after successful tests
   push-to-postman:
     name: Push to Postman Workspace (Only on Merged PRs)
