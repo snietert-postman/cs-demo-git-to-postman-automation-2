@@ -52,6 +52,35 @@ jobs:
         with:
           node-version: '20'
       
+      - name: Install Application Dependencies
+        run: |
+          echo "Installing application dependencies..."
+          yarn install
+      
+      - name: Build Application
+        run: |
+          echo "Building NestJS application..."
+          yarn build
+      
+      - name: Start NestJS Application
+        run: |
+          echo "Starting NestJS application..."
+          yarn start &
+          
+          # Wait for the application to be ready
+          echo "Waiting for application to start..."
+          for i in {1..30}; do
+            if curl -s http://localhost:3000/ > /dev/null; then
+              echo "✅ Application is ready!"
+              break
+            fi
+            echo "Waiting... ($i/30)"
+            sleep 2
+          done
+          
+          # Verify the application is running
+          curl http://localhost:3000/ || (echo "❌ Application failed to start" && exit 1)
+      
       - name: Install Postman CLI
         run: |
           curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
