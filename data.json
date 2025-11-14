@@ -1,0 +1,61 @@
+{
+  "inventory": [
+    {
+      "id": 32,
+      "name": "Laptop",
+      "description": "High-performance laptop for business use - Updated model",
+      "quantity": 20,
+      "price": 1199.99
+    },
+    {
+      "id": 33,
+      "name": "Mechanical Keyboard",
+      "description": "RGB mechanical keyboard with blue switches",
+      "quantity": 25,
+      "price": 89.99
+    },
+    {
+      "id": 34,
+      "name": "Mechanical Keyboard",
+      "description": "RGB mechanical keyboard with blue switches",
+      "quantity": 25,
+      "price": 89.99
+    },
+    {
+      "id": 35,
+      "name": "Mechanical Keyboard",
+      "description": "RGB mechanical keyboard with blue switches",
+      "quantity": 25,
+      "price": 89.99
+    },
+    {
+      "id": 36,
+      "name": "Mechanical Keyboard",
+      "description": "RGB mechanical keyboard with blue switches",
+      "quantity": 25,
+      "price": 89.99
+    },
+    {
+      "id": 37,
+      "name": "Mechanical Keyboard",
+      "description": "RGB mechanical keyboard with blue switches",
+      "quantity": 25,
+      "price": 89.99
+    },
+    {
+      "id": 38,
+      "name": "Mechanical Keyboard",
+      "description": "RGB mechanical keyboard with blue switches",
+      "quantity": 25,
+      "price": 89.99
+    },
+    {
+      "id": 39,
+      "name": "Mechanical Keyboard",
+      "description": "RGB mechanical keyboard with blue switches",
+      "quantity": 25,
+      "price": 89.99
+    }
+  ],
+  "nextId": 40
+}
