@@ -1,17 +1,16 @@
 name: Postman CI/CD Pipeline
 
+# Workflow Logic:
+# 1. On push to feature branches: Run spec-lint → functional-tests (using feature branch code)
+# 2. On push to main (when PR is merged): Run spec-lint → functional-tests → push-to-postman (using merged main code)
+
 on:
   push:
     branches:
-      - '**'  # Trigger on all branches
-      - '!main'  # Exclude main branch to prevent duplicate runs
-  pull_request:
-    types: [closed]
-    branches:
-      - main
+      - '**'  # Trigger on all branches (including main when PR is merged)
 
 jobs:
-  # Job 1: Spec Lint - Runs on all branches
+  # Job 1: Spec Lint - Validates API schema on all branches
   spec-lint:
     name: Spec Lint
     runs-on: ubuntu-latest
@@ -37,7 +36,7 @@ jobs:
           echo "Linting Open API Spec containeing all APIs..."
           postman spec lint openapi.json
           
-  # Job 2: Functional Tests - Runs on all branches, depends on spec-lint
+  # Job 2: Functional Tests - Runs Postman collections on all branches (depends on spec-lint)
   functional-tests:
     name: Functional Tests
     runs-on: ubuntu-latest
@@ -101,28 +100,19 @@ jobs:
             -e postman/environments/Localhost.postman_environment.json \
             -r cli,json
       
-      - name: Upload Test Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-feature
-          path: |
-            inventory-results.json
-            feedback-results.json
-
   # Job 3: Push to Postman - Runs only on main branch after successful tests
   push-to-postman:
-    name: Push to Postman Workspace (Only on Merged PRs)
+    name: Push to Postman Workspace (Only on Main Branch)
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true
+    if: github.ref == 'refs/heads/main'
     needs: [functional-tests]
     
     steps:
       - name: Check if deployment should run
         run: |
-          echo "ℹ️  This job only runs when a Pull Request is merged to main"
-          echo "Current event: ${{ github.event_name }}"
-          echo "PR merged: ${{ github.event.pull_request.merged }}"
+          echo "ℹ️  This job only runs when code is pushed to main branch"
+          echo "Current branch: ${{ github.ref }}"
+          echo "Event: ${{ github.event_name }}"
       
       - name: Checkout code
         uses: actions/checkout@v4
