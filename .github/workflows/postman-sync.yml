@@ -1,0 +1,113 @@
+name: Postman Cloud Sync
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  sync:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js v20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build NestJS application
+        run: yarn build
+
+      - name: Start server in background
+        run: |
+          yarn start &
+          echo $! > server.pid
+          echo "Server started with PID $(cat server.pid)"
+
+      - name: Wait for health check
+        run: |
+          echo "Waiting for server to be ready..."
+          max_attempts=30
+          attempt=0
+          until curl -f http://localhost:3000 || [ $attempt -eq $max_attempts ]; do
+            attempt=$((attempt + 1))
+            echo "Attempt $attempt/$max_attempts - Server not ready yet..."
+            sleep 2
+          done
+          if [ $attempt -eq $max_attempts ]; then
+            echo "Server failed to start within timeout"
+            exit 1
+          fi
+          echo "Server is ready!"
+
+      - name: Install Postman CLI
+        run: |
+          curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+
+      - name: Login to Postman CLI
+        run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+
+      - name: Lint OpenAPI specification
+        run: postman spec lint openapi.json
+
+      - name: Run Postman collection tests
+        run: |
+          postman collection run "postman/collections/Inventory-Management-API-Updated.postman_collection.json" \
+            -e "postman/environments/Localhost.postman_environment.json"
+
+      - name: Push to Postman Cloud
+        if: success()
+        run: postman workspace push --collections-dir postman/collections --environments-dir postman/environments --yes
+
+      - name: Post failure comment to PR
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const comment = `## ⚠️ Postman Cloud Sync Failed
+            
+            The Postman sync workflow failed after merging PR #${context.payload.pull_request.number}.
+            
+            **Details:**
+            - Workflow: \`${context.workflow}\`
+            - Run ID: \`${context.runId}\`
+            - Commit: \`${context.sha.substring(0, 7)}\`
+            
+            **Action Required:**
+            Please review the [workflow run logs](${runUrl}) to identify and fix the issue.
+            
+            Common causes:
+            - OpenAPI spec lint failed
+            - API tests failed
+            - Server failed to start
+            - Postman CLI authentication issues
+            - Workspace push conflicts
+            `;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: comment
+            });
+
+      - name: Cleanup - Stop server
+        if: always()
+        run: |
+          if [ -f server.pid ]; then
+            server_pid=$(cat server.pid)
+            echo "Stopping server with PID $server_pid"
+            kill $server_pid || true
+            rm server.pid
+          fi

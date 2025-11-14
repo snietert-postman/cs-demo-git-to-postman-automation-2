@@ -1,0 +1,108 @@
+name: Postman Collection Tests
+
+# To set up the POSTMAN_API_KEY secret:
+# 1. Go to your GitHub repository Settings
+# 2. Navigate to Secrets and variables > Actions
+# 3. Click "New repository secret"
+# 4. Name: POSTMAN_API_KEY
+# 5. Value: Your Postman API key (get it from https://go.postman.co/settings/me/api-keys)
+# 6. Click "Add secret"
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+      
+      - name: Install dependencies
+        run: yarn install
+      
+      - name: Build NestJS application
+        run: yarn build
+      
+      - name: Start application server
+        run: |
+          echo "Starting server in background..."
+          yarn start > server.log 2>&1 &
+          echo $! > server.pid
+          echo "Server started with PID: $(cat server.pid)"
+      
+      - name: Wait for server to be ready
+        run: |
+          echo "Waiting for server to be ready on localhost:3000..."
+          for i in {1..30}; do
+            if curl -f http://localhost:3000 > /dev/null 2>&1; then
+              echo "✅ Server is ready!"
+              exit 0
+            fi
+            echo "Attempt $i/30: Server not ready yet, waiting..."
+            sleep 2
+          done
+          echo "❌ Server failed to start within 60 seconds"
+          cat server.log
+          exit 1
+      
+      - name: Install Postman CLI
+        run: |
+          curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+      
+      - name: Login to Postman CLI
+        run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+        env:
+          POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
+      
+      - name: Lint OpenAPI specification
+        run: postman spec lint openapi.json
+      
+      - name: Run Postman collection tests
+        run: |
+          postman collection run "postman/collections/Inventory-Management-API-Updated.postman_collection.json" \
+            --environment "postman/environments/Localhost.postman_environment.json" \
+            --verbose
+        continue-on-error: false
+      
+      - name: Display server logs on failure
+        if: failure()
+        run: |
+          echo "=========================================="
+          echo "📋 Server Logs (for debugging)"
+          echo "=========================================="
+          if [ -f server.log ]; then
+            cat server.log
+          else
+            echo "No server log file found"
+          fi
+          echo "=========================================="
+      
+      - name: Stop server
+        if: always()
+        run: |
+          if [ -f server.pid ]; then
+            echo "Stopping server with PID: $(cat server.pid)"
+            kill $(cat server.pid) || true
+          fi
+      
+      - name: Check test results
+        if: failure()
+        run: |
+          echo "❌ Postman collection tests failed!"
+          echo "Check the test output above for details on which tests failed."
+          exit 1
+      
+      - name: Test results summary
+        if: success()
+        run: |
+          echo "✅ All Postman collection tests passed successfully!"
