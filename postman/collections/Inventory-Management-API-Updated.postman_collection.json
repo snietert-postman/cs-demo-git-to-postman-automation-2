@@ -1,9 +1,9 @@
 {
   "info": {
-    "_postman_id": "6d0f5b9e-0731-4811-810b-5537da27b5c5",
     "name": "Inventory-Management-API",
     "description": "A complete REST API for managing inventory items. This collection includes all CRUD operations with examples for success and error scenarios.\n\n## Features\n\n- List all inventory items\n    \n- Get specific item by ID\n    \n- Create new inventory items\n    \n- Update existing items\n    \n- Delete items\n    \n- Persistent storage in data.json\n    \n- Comprehensive test coverage for all endpoints\n    \n\n## Base URL\n\nUse the `{{baseUrl}}` variable from the environment to set your server location (default: [http://localhost:3000](http://localhost:3000))",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "d16bba3f-aa76-4351-ab70-623b66a39b02"
   },
   "item": [
     {
@@ -128,7 +128,8 @@
           ]
         },
         "description": "Returns API information including version and available endpoints."
-      }
+      },
+      "id": "6e1dab07-e85f-4eff-aa1c-7c09e3122e85"
     },
     {
       "name": "Get API Specification",
@@ -209,7 +210,8 @@
           ]
         },
         "description": "Returns the OpenAPI specification for this API."
-      }
+      },
+      "id": "e8a626fe-ad45-479d-8dc2-2ab22927296e"
     },
     {
       "name": "List All Inventory Items",
@@ -273,7 +275,8 @@
           ]
         },
         "description": "Retrieves all inventory items from the database. Returns an array of items with their complete details including ID, name, description, quantity, and price."
-      }
+      },
+      "id": "1980c9fb-ee57-49cb-81c6-0238512ab324"
     },
     {
       "name": "Search Items",
@@ -393,7 +396,8 @@
             }
           ],
           "responseTime": null,
-          "body": "{\n  \"success\": true,\n  \"count\": 1,\n  \"data\": [\n    {\n      \"id\": 1,\n      \"name\": \"Laptop\",\n      \"description\": \"High-performance laptop for business use\",\n      \"quantity\": 15,\n      \"price\": 1299.99\n    }\n  ]\n}"
+          "body": "{\n  \"success\": true,\n  \"count\": 1,\n  \"data\": [\n    {\n      \"id\": 1,\n      \"name\": \"Laptop\",\n      \"description\": \"High-performance laptop for business use\",\n      \"quantity\": 15,\n      \"price\": 1299.99\n    }\n  ]\n}",
+          "id": "1c37628b-650d-4b73-b884-cd44317be8f1"
         },
         {
           "name": "Search for 'wireless'",
@@ -428,7 +432,8 @@
             }
           ],
           "responseTime": null,
-          "body": "{\n  \"success\": true,\n  \"count\": 1,\n  \"data\": [\n    {\n      \"id\": 2,\n      \"name\": \"Wireless Mouse\",\n      \"description\": \"Ergonomic wireless mouse with USB receiver\",\n      \"quantity\": 50,\n      \"price\": 29.99\n    }\n  ]\n}"
+          "body": "{\n  \"success\": true,\n  \"count\": 1,\n  \"data\": [\n    {\n      \"id\": 2,\n      \"name\": \"Wireless Mouse\",\n      \"description\": \"Ergonomic wireless mouse with USB receiver\",\n      \"quantity\": 50,\n      \"price\": 29.99\n    }\n  ]\n}",
+          "id": "9f21ba1b-425f-4156-91c7-71c9347aedbc"
         },
         {
           "name": "Search for 'usb' (multiple results)",
@@ -463,7 +468,8 @@
             }
           ],
           "responseTime": null,
-          "body": "{\n  \"success\": true,\n  \"count\": 2,\n  \"data\": [\n    {\n      \"id\": 2,\n      \"name\": \"Wireless Mouse\",\n      \"description\": \"Ergonomic wireless mouse with USB receiver\",\n      \"quantity\": 50,\n      \"price\": 29.99\n    },\n    {\n      \"id\": 3,\n      \"name\": \"USB-C Cable\",\n      \"description\": \"6ft USB-C charging cable\",\n      \"quantity\": 100,\n      \"price\": 12.99\n    }\n  ]\n}"
+          "body": "{\n  \"success\": true,\n  \"count\": 2,\n  \"data\": [\n    {\n      \"id\": 2,\n      \"name\": \"Wireless Mouse\",\n      \"description\": \"Ergonomic wireless mouse with USB receiver\",\n      \"quantity\": 50,\n      \"price\": 29.99\n    },\n    {\n      \"id\": 3,\n      \"name\": \"USB-C Cable\",\n      \"description\": \"6ft USB-C charging cable\",\n      \"quantity\": 100,\n      \"price\": 12.99\n    }\n  ]\n}",
+          "id": "42a515b9-4942-48c7-8d61-a80158c77ccf"
         },
         {
           "name": "Search with no results",
@@ -498,7 +504,8 @@
             }
           ],
           "responseTime": null,
-          "body": "{\n  \"success\": true,\n  \"count\": 0,\n  \"data\": []\n}"
+          "body": "{\n  \"success\": true,\n  \"count\": 0,\n  \"data\": []\n}",
+          "id": "f3322703-23a2-4bf2-b5e5-c3410af8ae40"
         },
         {
           "name": "Search without query parameter (error)",
@@ -527,9 +534,11 @@
             }
           ],
           "responseTime": null,
-          "body": "{\n  \"success\": false,\n  \"error\": \"Search query parameter \\\"q\\\" is required\"\n}"
+          "body": "{\n  \"success\": false,\n  \"error\": \"Search query parameter \\\"q\\\" is required\"\n}",
+          "id": "e4f56be3-a4e5-4cb6-a035-bfa0372a921e"
         }
-      ]
+      ],
+      "id": "38c134bd-62be-4aa3-905b-7a6d2085657f"
     },
     {
       "name": "Get Item by ID",
@@ -554,7 +563,8 @@
           ]
         },
         "description": "Retrieves a specific inventory item by its ID. Returns the complete item details if found, or a 404 error if the item doesn't exist."
-      }
+      },
+      "id": "1155d34e-cd47-4344-80b7-ba8b29d43ea4"
     },
     {
       "name": "Create New Item",
@@ -649,7 +659,8 @@
           ]
         },
         "description": "Creates a new inventory item. All fields are required:\n- **name**: Non-empty string\n- **description**: String\n- **quantity**: Non-negative number\n- **price**: Non-negative number\n\nThe item is automatically assigned a unique ID and saved to data.json."
-      }
+      },
+      "id": "4bc159f5-fa7b-4357-96e9-edf231a468d9"
     },
     {
       "name": "Update Item",
@@ -684,7 +695,8 @@
           ]
         },
         "description": "Updates an existing inventory item. All fields must be provided:\n- **name**: Non-empty string\n- **description**: String\n- **quantity**: Non-negative number\n- **price**: Non-negative number\n\nThe changes are saved to data.json immediately."
-      }
+      },
+      "id": "41bb0e7a-926c-433d-acb3-4c52eb185b00"
     },
     {
       "name": "Delete Item",
@@ -709,7 +721,8 @@
           ]
         },
         "description": "Deletes an inventory item by its ID. The item is permanently removed from data.json. Returns the deleted item details on success."
-      }
+      },
+      "id": "2c77c7ec-b48d-4888-9a31-676e199f30f9"
     }
   ]
 }
