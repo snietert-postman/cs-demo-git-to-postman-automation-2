@@ -1,0 +1,155 @@
+name: Postman CI/CD
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+      
+      - name: Install dependencies
+        run: yarn install
+      
+      - name: Build NestJS application
+        run: yarn build
+      
+      - name: Start application server
+        run: |
+          echo "Starting server in background..."
+          yarn start > server.log 2>&1 &
+          echo $! > server.pid
+          echo "Server started with PID: $(cat server.pid)"
+      
+      - name: Wait for server to be ready
+        run: |
+          echo "Waiting for server to be ready on localhost:3000..."
+          for i in {1..30}; do
+            if curl -f http://localhost:3000 > /dev/null 2>&1; then
+              echo "✅ Server is ready!"
+              exit 0
+            fi
+            echo "Attempt $i/30: Server not ready yet, waiting..."
+            sleep 2
+          done
+          echo "❌ Server failed to start within 60 seconds"
+          cat server.log
+          exit 1
+      
+      - name: Install Postman CLI
+        run: |
+          curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+      
+      - name: Login to Postman CLI
+        run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+        env:
+          POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
+      
+      - name: Lint OpenAPI specification
+        run: postman spec lint openapi.json
+      
+      - name: Run Postman collection tests
+        run: |
+          postman collection run "postman/collections/Inventory-Management-API-Updated.postman_collection.json" \
+            --environment "postman/environments/Localhost.postman_environment.json" \
+            --verbose
+        continue-on-error: false
+      
+      - name: Display server logs on failure
+        if: failure()
+        run: |
+          echo "=========================================="
+          echo "📋 Server Logs (for debugging)"
+          echo "=========================================="
+          if [ -f server.log ]; then
+            cat server.log
+          else
+            echo "No server log file found"
+          fi
+          echo "=========================================="
+      
+      - name: Stop server
+        if: always()
+        run: |
+          if [ -f server.pid ]; then
+            echo "Stopping server with PID: $(cat server.pid)"
+            kill $(cat server.pid) || true
+          fi
+      
+      - name: Test results summary
+        if: success()
+        run: |
+          echo "✅ All Postman collection tests passed successfully!"
+
+  push-to-postman:
+    needs: [test]
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install Postman CLI
+        run: |
+          curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+      
+      - name: Login to Postman CLI
+        run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+      
+      - name: Push to Postman Cloud
+        run: postman workspace push --collections-dir postman/collections --environments-dir postman/environments --yes
+      
+      - name: Post failure comment to PR
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const comment = `## ⚠️ Postman Cloud Sync Failed
+            
+            The Postman sync workflow failed after merging PR #${context.payload.pull_request.number}.
+            
+            **Details:**
+            - Workflow: \`${context.workflow}\`
+            - Run ID: \`${context.runId}\`
+            - Commit: \`${context.sha.substring(0, 7)}\`
+            
+            **Action Required:**
+            Please review the [workflow run logs](${runUrl}) to identify and fix the issue.
+            
+            Common causes:
+            - OpenAPI spec lint failed
+            - API tests failed
+            - Server failed to start
+            - Postman CLI authentication issues
+            - Workspace push conflicts
+            `;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: comment
+            });
+      
+      - name: Push success summary
+        if: success()
+        run: |
+          echo "✅ Successfully pushed to Postman Cloud!"
