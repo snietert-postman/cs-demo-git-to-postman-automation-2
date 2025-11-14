@@ -34,12 +34,9 @@ jobs:
           postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
           
           # Lint all collections
-          echo "Linting Inventory Management API..."
-          postman api lint postman/collections/Inventory-Management-API-Updated.postman_collection.json
+          echo "Linting Open API Spec containeing all APIs..."
+          postman spec lint openapi.json
           
-          echo "Linting Customer Feedback API..."
-          postman api lint postman/collections/Customer-Feedback-API.postman_collection.json
-
   # Job 2: Functional Tests - Runs on all branches, depends on spec-lint
   functional-tests:
     name: Functional Tests
