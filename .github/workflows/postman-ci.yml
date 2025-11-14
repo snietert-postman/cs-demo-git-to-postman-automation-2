@@ -117,11 +117,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
       - name: Install Postman CLI
         run: |
           curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
@@ -130,23 +125,14 @@ jobs:
         run: |
           postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
           
-          echo "Pushing collections to Postman workspace..."
-          
-          # Push Inventory Management API
-          echo "Pushing Inventory Management API..."
-          postman collection push postman/collections/Inventory-Management-API-Updated.postman_collection.json \
-            --workspace-id ${{ secrets.POSTMAN_WORKSPACE_ID }}
-          
-          # Push Customer Feedback API
-          echo "Pushing Customer Feedback API..."
-          postman collection push postman/collections/Customer-Feedback-API.postman_collection.json \
-            --workspace-id ${{ secrets.POSTMAN_WORKSPACE_ID }}
-          
-          echo "✅ Successfully pushed all collections to Postman workspace!"
+          # Push all changes to Postman Workspace
+          echo "Pushing all changes to Postman workspace..."
+          postman workspace push
+          echo "✅ Successfully pushed all changes to Postman workspace!"
       
       - name: Notify Success
         if: success()
         run: |
           echo "🎉 Pipeline completed successfully!"
           echo "✅ All tests passed"
-          echo "✅ Collections pushed to Postman workspace"
+          echo "✅ All changes pushed to Postman workspace"
