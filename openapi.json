@@ -393,6 +393,155 @@
           "Inventory"
         ]
       }
+    },
+    "/api/feedback": {
+      "get": {
+        "description": "Retrieve a complete list of all customer feedback items with date, title, email, and description",
+        "operationId": "FeedbackController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved feedback items",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "count": {
+                      "type": "integer",
+                      "example": 3
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/FeedbackItemEntity"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "List all customer feedback",
+        "tags": [
+          "Feedback"
+        ]
+      },
+      "post": {
+        "description": "Create a new feedback item",
+        "operationId": "FeedbackController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFeedbackItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Feedback submitted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Feedback submitted successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/FeedbackItemEntity"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data"
+          }
+        },
+        "summary": "Submit new customer feedback",
+        "tags": [
+          "Feedback"
+        ]
+      }
+    },
+    "/api/feedback/{id}": {
+      "get": {
+        "description": "Retrieve details of a single feedback item by its ID",
+        "operationId": "FeedbackController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Unique identifier of the feedback item",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved feedback item",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/FeedbackItemEntity"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Feedback item not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Feedback item with ID 1 not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get a specific feedback item",
+        "tags": [
+          "Feedback"
+        ]
+      }
     }
   },
   "info": {
@@ -511,6 +660,74 @@
           "description",
           "quantity",
           "price"
+        ]
+      },
+      "FeedbackItemEntity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Auto-generated unique identifier",
+            "example": 1
+          },
+          "date": {
+            "type": "string",
+            "description": "Date of the feedback",
+            "example": "2025-11-14"
+          },
+          "title": {
+            "type": "string",
+            "description": "Title of the feedback",
+            "example": "Great product quality"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email of the reporter",
+            "example": "customer@example.com"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description of the feedback",
+            "example": "The product exceeded my expectations. Very satisfied with the purchase."
+          }
+        },
+        "required": [
+          "id",
+          "date",
+          "title",
+          "email",
+          "description"
+        ]
+      },
+      "CreateFeedbackItemDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Date of the feedback",
+            "example": "2025-11-14"
+          },
+          "title": {
+            "type": "string",
+            "description": "Title of the feedback",
+            "example": "Great product quality"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email of the reporter",
+            "example": "customer@example.com"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description of the feedback",
+            "example": "The product exceeded my expectations. Very satisfied with the purchase."
+          }
+        },
+        "required": [
+          "date",
+          "title",
+          "email",
+          "description"
         ]
       }
     }

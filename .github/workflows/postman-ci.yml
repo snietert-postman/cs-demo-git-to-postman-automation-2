@@ -1,156 +1,162 @@
-name: Postman CI/CD
+name: Postman CI/CD Pipeline
 
 on:
   push:
     branches:
-      - '**'
-      - '!main'
+      - '**'  # Trigger on all branches
+      - '!main'  # Exclude main branch to prevent duplicate runs
   pull_request:
     types: [closed]
     branches:
       - main
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'yarn'
-      
-      - name: Install dependencies
-        run: yarn install
-      
-      - name: Build NestJS application
-        run: yarn build
-      
-      - name: Start application server
-        run: |
-          echo "Starting server in background..."
-          yarn start > server.log 2>&1 &
-          echo $! > server.pid
-          echo "Server started with PID: $(cat server.pid)"
-      
-      - name: Wait for server to be ready
-        run: |
-          echo "Waiting for server to be ready on localhost:3000..."
-          for i in {1..30}; do
-            if curl -f http://localhost:3000 > /dev/null 2>&1; then
-              echo "✅ Server is ready!"
-              exit 0
-            fi
-            echo "Attempt $i/30: Server not ready yet, waiting..."
-            sleep 2
-          done
-          echo "❌ Server failed to start within 60 seconds"
-          cat server.log
-          exit 1
-      
-      - name: Install Postman CLI
-        run: |
-          curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
-      
-      - name: Login to Postman CLI
-        run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
-        env:
-          POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
-      
-      - name: Lint OpenAPI specification
-        run: postman spec lint openapi.json
-      
-      - name: Run Postman collection tests
-        run: |
-          postman collection run "postman/collections/Inventory-Management-API-Updated.postman_collection.json" \
-            --environment "postman/environments/Localhost.postman_environment.json" \
-            --verbose
-        continue-on-error: false
-      
-      - name: Display server logs on failure
-        if: failure()
-        run: |
-          echo "=========================================="
-          echo "📋 Server Logs (for debugging)"
-          echo "=========================================="
-          if [ -f server.log ]; then
-            cat server.log
-          else
-            echo "No server log file found"
-          fi
-          echo "=========================================="
-      
-      - name: Stop server
-        if: always()
-        run: |
-          if [ -f server.pid ]; then
-            echo "Stopping server with PID: $(cat server.pid)"
-            kill $(cat server.pid) || true
-          fi
-      
-      - name: Test results summary
-        if: success()
-        run: |
-          echo "✅ All Postman collection tests passed successfully!"
-
-  push-to-postman:
-    needs: [test]
-    if: github.event.pull_request.merged == true
+  # Job 1: Spec Lint - Runs on all branches
+  spec-lint:
+    name: Spec Lint
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
       - name: Install Postman CLI
         run: |
           curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
       
-      - name: Login to Postman CLI
-        run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+      - name: Lint API Specifications
+        run: |
+          postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+          
+          # Lint all collections
+          echo "Linting Open API Spec containeing all APIs..."
+          postman spec lint openapi.json
+          
+  # Job 2: Functional Tests - Runs on all branches, depends on spec-lint
+  functional-tests:
+    name: Functional Tests
+    runs-on: ubuntu-latest
+    needs: [spec-lint]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
       
-      - name: Push to Postman Cloud
-        run: postman workspace push --collections-dir postman/collections --environments-dir postman/environments --yes
-      
-      - name: Post failure comment to PR
-        if: failure()
-        uses: actions/github-script@v7
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-            const comment = `## ⚠️ Postman Cloud Sync Failed
-            
-            The Postman sync workflow failed after merging PR #${context.payload.pull_request.number}.
-            
-            **Details:**
-            - Workflow: \`${context.workflow}\`
-            - Run ID: \`${context.runId}\`
-            - Commit: \`${context.sha.substring(0, 7)}\`
-            
-            **Action Required:**
-            Please review the [workflow run logs](${runUrl}) to identify and fix the issue.
-            
-            Common causes:
-            - OpenAPI spec lint failed
-            - API tests failed
-            - Server failed to start
-            - Postman CLI authentication issues
-            - Workspace push conflicts
-            `;
-            
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              body: comment
-            });
+          node-version: '20'
       
-      - name: Push success summary
+      - name: Install Application Dependencies
+        run: |
+          echo "Installing application dependencies..."
+          yarn install
+      
+      - name: Build Application
+        run: |
+          echo "Building NestJS application..."
+          yarn build
+      
+      - name: Start NestJS Application
+        run: |
+          echo "Starting NestJS application..."
+          yarn start &
+          
+          # Wait for the application to be ready
+          echo "Waiting for application to start..."
+          for i in {1..30}; do
+            if curl -s http://localhost:3000/ > /dev/null; then
+              echo "✅ Application is ready!"
+              break
+            fi
+            echo "Waiting... ($i/30)"
+            sleep 2
+          done
+          
+          # Verify the application is running
+          curl http://localhost:3000/ || (echo "❌ Application failed to start" && exit 1)
+      
+      - name: Install Postman CLI
+        run: |
+          curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+      
+      - name: Run Collection Tests
+        run: |
+          postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+          
+          # Run Inventory Management API tests
+          echo "Running Inventory Management API tests..."
+          postman collection run postman/collections/Inventory-Management-API-Updated.postman_collection.json \
+            -e postman/environments/Localhost.postman_environment.json \
+            -r cli,json
+          
+          # Run Customer Feedback API tests
+          echo "Running Customer Feedback API tests..."
+          postman collection run postman/collections/Customer-Feedback-API.postman_collection.json \
+            -e postman/environments/Localhost.postman_environment.json \
+            -r cli,json
+      
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-feature
+          path: |
+            inventory-results.json
+            feedback-results.json
+
+  # Job 3: Push to Postman - Runs only on main branch after successful tests
+  push-to-postman:
+    name: Push to Postman Workspace (Only on Merged PRs)
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    needs: [functional-tests]
+    
+    steps:
+      - name: Check if deployment should run
+        run: |
+          echo "ℹ️  This job only runs when a Pull Request is merged to main"
+          echo "Current event: ${{ github.event_name }}"
+          echo "PR merged: ${{ github.event.pull_request.merged }}"
+      
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install Postman CLI
+        run: |
+          curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+      
+      - name: Push Collections to Postman Workspace
+        run: |
+          postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+          
+          echo "Pushing collections to Postman workspace..."
+          
+          # Push Inventory Management API
+          echo "Pushing Inventory Management API..."
+          postman collection push postman/collections/Inventory-Management-API-Updated.postman_collection.json \
+            --workspace-id ${{ secrets.POSTMAN_WORKSPACE_ID }}
+          
+          # Push Customer Feedback API
+          echo "Pushing Customer Feedback API..."
+          postman collection push postman/collections/Customer-Feedback-API.postman_collection.json \
+            --workspace-id ${{ secrets.POSTMAN_WORKSPACE_ID }}
+          
+          echo "✅ Successfully pushed all collections to Postman workspace!"
+      
+      - name: Notify Success
         if: success()
         run: |
-          echo "✅ Successfully pushed to Postman Cloud!"
+          echo "🎉 Pipeline completed successfully!"
+          echo "✅ All tests passed"
+          echo "✅ Collections pushed to Postman workspace"

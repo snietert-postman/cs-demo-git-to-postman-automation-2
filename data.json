@@ -55,7 +55,14 @@
       "description": "RGB mechanical keyboard with blue switches",
       "quantity": 25,
       "price": 89.99
+    },
+    {
+      "id": 40,
+      "name": "Mechanical Keyboard",
+      "description": "RGB mechanical keyboard with blue switches",
+      "quantity": 25,
+      "price": 89.99
     }
   ],
-  "nextId": 40
+  "nextId": 41
 }
